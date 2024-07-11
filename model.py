@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchsummary
+from torchsummary import summary
 
 class SparseAutoEncoder(nn.Module):
 
@@ -79,9 +79,10 @@ if __name__ == "__main__":
         sparsity_target=sparsity_target
     )
 
-    print(model)
+    summary(model, (in_dims,))
 
     x = torch.randn(10, in_dims)
     encoded, decoded = model(x)
     loss = model.loss_function(decoded, x, encoded)
     print(loss.item())
+    
