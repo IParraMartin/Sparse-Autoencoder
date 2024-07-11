@@ -4,12 +4,17 @@ import torch.nn as nn
 
 class SparseAutoEncoder(nn.Module):
 
-    def __init__(self) -> None:
+    def __init__(self, in_dims):
         super().__init__()
-        self.relu = nn.ReLU()
+        self.in_dims = in_dims
+        self.features = in_dims * 2
+
         self.encoder = nn.Sequential(
-            
+            nn.Linear(self.in_dims, self.features),
+            nn.ReLU()
         )
+
+
 
     def forward(self, x):
         pass
