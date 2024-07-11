@@ -82,7 +82,6 @@ if __name__ == "__main__":
     print(model)
 
     x = torch.randn(10, in_dims)
-
     encoded, decoded = model(x)
     loss = model.loss_function(decoded, x, encoded)
     print(loss.item())
