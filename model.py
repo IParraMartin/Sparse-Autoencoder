@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
+import argparse
 
 class SparseAutoEncoder(nn.Module):
 
@@ -67,21 +68,23 @@ class SparseAutoEncoder(nn.Module):
 
 if __name__ == "__main__":
 
-    in_dims = 500
-    h_dims = int(in_dims * 2)
-    sparsity_lambda = 1e-4
-    sparsity_target = 0.05
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--in_dims', type=int, default=500)
+    parser.add_argument('--h_dims', type=int, default=1000)
+    parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
+    parser.add_argument('--sparsity_target', type=float, default=0.05)
+    args = parser.parse_args()
 
     model = SparseAutoEncoder(
-        in_dims=in_dims, 
-        h_dims=h_dims, 
-        sparsity_lambda=sparsity_lambda, 
-        sparsity_target=sparsity_target
+        in_dims=args.in_dims, 
+        h_dims=args.h_dims, 
+        sparsity_lambda=args.sparsity_lambda, 
+        sparsity_target=args.sparsity_target
     )
 
-    summary(model, (in_dims,))
+    summary(model, (args.in_dims,))
 
-    x = torch.randn(10, in_dims)
+    x = torch.randn(10, args.in_dims)
     encoded, decoded = model(x)
     loss = model.loss_function(decoded, x, encoded)
     print(loss.item())
