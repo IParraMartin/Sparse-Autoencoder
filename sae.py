@@ -5,7 +5,7 @@ from torchsummary import summary
 import argparse
 
 
-class SparseAutoEncoder(nn.Module):
+class SparseAutoencoder(nn.Module):
 
     def __init__(self, in_dims, h_dims, sparsity_lambda=1e-4, sparsity_target=0.05):
         super().__init__()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     args = parser.parse_args()
 
-    model = SparseAutoEncoder(
+    model = SparseAutoencoder(
         in_dims=args.in_dims, 
         h_dims=args.h_dims, 
         sparsity_lambda=args.sparsity_lambda, 
