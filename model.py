@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torchsummary import summary
 import argparse
 
+
 class SparseAutoEncoder(nn.Module):
 
     def __init__(self, in_dims, h_dims, sparsity_lambda=1e-4, sparsity_target=0.05):
@@ -41,7 +42,7 @@ class SparseAutoEncoder(nn.Module):
         return encoded, decoded
     
     """
-    This is the sparsity penalty we are going to use (KL)
+    This is the sparsity penalty we are going to use KL divergence
     """
     def sparsity_penalty(self, encoded):
         # Compute the average activation of each hidden neuron across all the samples in a batch
