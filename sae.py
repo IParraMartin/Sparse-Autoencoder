@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
 import argparse
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 
 
 class SparseAutoencoder(nn.Module):
@@ -67,13 +69,33 @@ class SparseAutoencoder(nn.Module):
         return mse_loss + sparsity_loss
 
 
+def train_model(model, dataloader, n_epochs, optimizer, device):
+    model.to(device)
+    for epoch in range(n_epochs):
+        total_loss = 0
+        for data, _ in dataloader:
+            # Flatten the img
+            data = data.view(data.size(0), -1).to(device)
+            optimizer.zero_grad()
+            encoded, decoded = model(data)
+            loss = model.loss_function(decoded, data, encoded)
+            loss.backward()
+            optimizer.step
+            total_loss += loss.item()
+        print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {total_loss/len(dataloader)}')
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--n_epochs', type=int, default=20)
+    parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--in_dims', type=int, default=500)
-    parser.add_argument('--h_dims', type=int, default=1000)
+    parser.add_argument('--h_dims', type=int, default=28*28)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
+    parser.add_argument('--show_summary', type=bool, default=True)
     args = parser.parse_args()
 
     model = SparseAutoencoder(
@@ -83,10 +105,8 @@ if __name__ == "__main__":
         sparsity_target=args.sparsity_target
     )
 
-    summary(model, (args.in_dims,))
-
-    x = torch.randn(10, args.in_dims)
-    encoded, decoded = model(x)
-    loss = model.loss_function(decoded, x, encoded)
-    print(loss.item())
+    if args.show_summary:
+        summary(model, (args.in_dims,))
+    
+    
     
