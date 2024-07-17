@@ -1,10 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchsummary import summary
 import argparse
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+
+from torchsummary import summary
+import os
+import certifi
+
+os.environ['SSL_CERT_FILE'] = certifi.where()
 
 
 class SparseAutoencoder(nn.Module):
@@ -67,7 +72,7 @@ class SparseAutoencoder(nn.Module):
         mse_loss = F.mse_loss(x_hat, x)
         sparsity_loss = self.sparsity_penalty(encoded)
         return mse_loss + sparsity_loss
-
+    
 
 def train_model(model, dataloader, n_epochs, optimizer, device):
     model.to(device)
@@ -92,13 +97,13 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--n_epochs', type=int, default=20)
     parser.add_argument('--lr', type=float, default=0.001)
-    parser.add_argument('--in_dims', type=int, default=500)
-    parser.add_argument('--h_dims', type=int, default=28*28)
+    parser.add_argument('--in_dims', type=int, default=784)
+    parser.add_argument('--h_dims', type=int, default=128)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
-    parser.add_argument('--train', type=bool, default=False)
+    parser.add_argument('--train', type=bool, default=True)
     args = parser.parse_args()
 
     transform = transforms.Compose([
@@ -140,6 +145,7 @@ if __name__ == "__main__":
         summary(sae_model, (args.in_dims,))
 
     if args.train:
+        print('Training...')
         train_model(
             model=sae_model,
             dataloader=train_dataloader,
@@ -147,3 +153,5 @@ if __name__ == "__main__":
             optimizer=optimizer,
             device=device
         )
+    
+    print('Trained!')
