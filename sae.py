@@ -58,9 +58,11 @@ class SparseAutoencoder(nn.Module):
         # Create a tensor of dimensions equal to the original tensor filled with the target sparsity (0.05 = 5%)
         # This means: we want 5% of the hidden units to be active on average
         rho = torch.ones_like(rho_hat) * self.sparsity_target
+        # Add a small epsilon value to avoid log(0)
+        epsilon = 1e-8
         # KL: quantify how one p-distribution diverges from a expected p-distribution
         # Our case: measure how average rho_hat diverges from our target rho
-        kl_divergence = F.kl_div(rho_hat.log(), rho, reduction='batchmean')
+        kl_divergence = F.kl_div((rho_hat + epsilon).log(), rho + epsilon, reduction='batchmean')
         return self.sparsity_lambda * kl_divergence
     
     """
@@ -78,7 +80,6 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
     model.to(device)
     for epoch in range(n_epochs):
         total_loss = 0
-        total_acc = 0
         for data, _ in dataloader:
             # Flatten the img
             data = data.view(data.size(0), -1).to(device)
@@ -86,7 +87,9 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
             encoded, decoded = model(data)
             loss = model.loss_function(decoded, data, encoded)
             loss.backward()
-            optimizer.step
+            # Implement gradient cliping to prevent explosion
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
             total_loss += loss.item()
         print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {total_loss/len(dataloader)}')
 
@@ -96,9 +99,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--n_epochs', type=int, default=20)
-    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--in_dims', type=int, default=784)
-    parser.add_argument('--h_dims', type=int, default=128)
+    parser.add_argument('--h_dims', type=int, default=512)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
