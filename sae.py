@@ -127,7 +127,14 @@ if __name__ == "__main__":
     )
 
     optimizer = torch.optim.Adam(sae_model.parameters(), lr=args.lr)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'mps' else 'cpu')
+
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    elif torch.backends.mps.is_available():
+        device = torch.device('mps')
+    else:
+        device = torch.device('cpu')
+    print(f'Using {device} for training.')
 
     if args.show_summary:
         summary(sae_model, (args.in_dims,))
