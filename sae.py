@@ -73,6 +73,7 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
     model.to(device)
     for epoch in range(n_epochs):
         total_loss = 0
+        total_acc = 0
         for data, _ in dataloader:
             # Flatten the img
             data = data.view(data.size(0), -1).to(device)
@@ -96,7 +97,26 @@ if __name__ == "__main__":
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
+    parser.add_argument('--download_mnist', type=bool, default=True)
     args = parser.parse_args()
+
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
+
+    train_dataset = datasets.MNIST(
+        root='./data',
+        train=True,
+        transform=transform,
+        download=args.download_mnist
+    )
+
+    train_dataloader = DataLoader(
+        dataset=train_dataset,
+        batch_size=args.batch_size,
+        shuffle=True
+    )
 
     model = SparseAutoencoder(
         in_dims=args.in_dims, 
