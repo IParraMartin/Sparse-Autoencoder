@@ -92,6 +92,7 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
             optimizer.step()
             total_loss += loss.item()
         print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {total_loss/len(dataloader)}')
+        print('-'*64)
 
 
 if __name__ == "__main__":
@@ -99,9 +100,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--n_epochs', type=int, default=20)
-    parser.add_argument('--lr', type=float, default=0.0001)
+    parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--in_dims', type=int, default=784)
-    parser.add_argument('--h_dims', type=int, default=512)
+    parser.add_argument('--h_dims', type=int, default=1024)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
@@ -142,13 +143,16 @@ if __name__ == "__main__":
         device = torch.device('mps')
     else:
         device = torch.device('cpu')
-    print(f'Using {device} for training.')
+
+    print(f'\nUsing {device} for training.\nTo change the device manually, use the argument in the command line.\n')
+    print('='*64)
 
     if args.show_summary:
+        print('MODEL SUMMARY:')
         summary(sae_model, (args.in_dims,))
 
     if args.train:
-        print('Training...')
+        print('\nTraining...\n')
         train_model(
             model=sae_model,
             dataloader=train_dataloader,
@@ -157,4 +161,5 @@ if __name__ == "__main__":
             device=device
         )
     
+    print('='*64)
     print('Trained!')
