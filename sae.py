@@ -98,6 +98,7 @@ if __name__ == "__main__":
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
+    parser.add_argument('--train', type=bool, default=False)
     args = parser.parse_args()
 
     transform = transforms.Compose([
@@ -118,15 +119,24 @@ if __name__ == "__main__":
         shuffle=True
     )
 
-    model = SparseAutoencoder(
+    sae_model = SparseAutoencoder(
         in_dims=args.in_dims, 
         h_dims=args.h_dims, 
         sparsity_lambda=args.sparsity_lambda, 
         sparsity_target=args.sparsity_target
     )
 
+    optimizer = torch.optim.Adam(sae_model.parameters(), lr=args.lr)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'mps' else 'cpu')
+
     if args.show_summary:
-        summary(model, (args.in_dims,))
-    
-    
-    
+        summary(sae_model, (args.in_dims,))
+
+    if args.train:
+        train_model(
+            model=sae_model,
+            dataloader=train_dataloader,
+            n_epochs=args.n_epochs,
+            optimizer=optimizer,
+            device=device
+        )
