@@ -15,12 +15,13 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 
 class SparseAutoencoder(nn.Module):
 
-    def __init__(self, in_dims, h_dims, sparsity_lambda=1e-4, sparsity_target=0.05):
+    def __init__(self, in_dims, h_dims, sparsity_lambda=1e-4, sparsity_target=0.05, xavier_norm_init=True):
         super().__init__()
         self.in_dims = in_dims
         self.h_dims = h_dims
         self.sparsity_lambda = sparsity_lambda
         self.sparsity_target = sparsity_target
+        self.xavier_norm_init = xavier_norm_init
 
         """
         Map the original dimensions to a higher dimensional layer of features.
@@ -31,6 +32,9 @@ class SparseAutoencoder(nn.Module):
             nn.ReLU()
         )
 
+        if self.xavier_norm_init:
+            nn.init.xavier_uniform_(self.encoder[0].weight)
+
         """
         Map back the features to the original input dimensions.
         Apply relu non-linearity to the linear transformation.
@@ -39,6 +43,9 @@ class SparseAutoencoder(nn.Module):
             nn.Linear(self.h_dims, self.in_dims),
             nn.ReLU()
         )
+
+        if self.xavier_norm_init:
+            nn.init.xavier_uniform_(self.decoder[0].weight)
 
     """
     We pass the original signal through the encoder. Then we pass
@@ -92,7 +99,7 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             total_loss += loss.item()
-        print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {total_loss/len(dataloader)}')
+        print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {float(total_loss/len(dataloader)):.4f}')
         print('-'*64)
 
 
@@ -106,6 +113,7 @@ if __name__ == "__main__":
     parser.add_argument('--h_dims', type=int, default=1024)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
+    parser.add_argument('--xavier_norm_init', type=bool, default=True)
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
     parser.add_argument('--train', type=bool, default=False)
@@ -133,7 +141,8 @@ if __name__ == "__main__":
         in_dims=args.in_dims, 
         h_dims=args.h_dims, 
         sparsity_lambda=args.sparsity_lambda, 
-        sparsity_target=args.sparsity_target
+        sparsity_target=args.sparsity_target,
+        xavier_norm_init=args.xavier_norm_init
     )
 
     optimizer = torch.optim.Adam(sae_model.parameters(), lr=args.lr)
