@@ -15,8 +15,8 @@ The parsed arguments allow the architecture to be launched from the terminal.
 - ```lr```: sets the learning rate.
 - ```in_dims```: sets input dimensions of the model.
 - ```h_dims```: sets hidden dimensions of the model.
-- ```sparsity_lambda```: sets the lambda value for the SAE ().
-- ```sparsity_target```: sets the sparsity target value ().
+- ```sparsity_lambda```: sets the lambda value for the SAE (controls the strength of the sparsity penalty in the loss function. Larger value equals to more sparsity but potential loss in reconstruction quality).
+- ```sparsity_target```: sets the sparsity target value (average activation you want each hidden neuron to have across all input samples. Smaller value allows more sparsity).
 - ```show_summary```: show model parameters and summary.
 - ```download_mnist```: download MNIST dataset for training.
 - ```train```: launch training.
