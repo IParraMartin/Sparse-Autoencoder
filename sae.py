@@ -9,8 +9,8 @@ from torchsummary import summary
 import os
 import certifi
 
+# ensure that Python uses up-to-date CA certificates when making secure connections and prevent errors
 os.environ['SSL_CERT_FILE'] = certifi.where()
-
 
 class SparseAutoencoder(nn.Module):
 
