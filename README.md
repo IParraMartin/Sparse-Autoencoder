@@ -10,16 +10,16 @@ This code implements a basic sparse autoencoder (SAE) in PyTorch. The loss is im
 ## 🛠️ Parameters
 The parsed arguments allow the architecture to be launched from the terminal.
 
-- batch_size: sets the batch size for training the model.
-- n_epochs: sets the number of epochs for training.
-- lr: sets the learning rate.
-- in_dims: sets input dimensions of the model.
-- h_dims: sets hidden dimensions of the model.
-- sparsity_lambda: sets the lambda value for the SAE ().
-- sparsity_target: sets the sparsity target value ().
-- show_summary: show model parameters and summary.
-- download_mnist: download MNIST dataset for training.
-- train: launch training.
+- ```batch_size```: sets the batch size for training the model.
+- ```n_epochs```: sets the number of epochs for training.
+- ```lr```: sets the learning rate.
+- ```in_dims```: sets input dimensions of the model.
+- ```h_dims```: sets hidden dimensions of the model.
+- ```sparsity_lambda```: sets the lambda value for the SAE ().
+- ```sparsity_target```: sets the sparsity target value ().
+- ```show_summary```: show model parameters and summary.
+- ```download_mnist```: download MNIST dataset for training.
+- ```train```: launch training.
 
 Here's the default values for the code:
 ```
