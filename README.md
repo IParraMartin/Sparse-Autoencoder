@@ -10,17 +10,17 @@ This code implements a basic sparse autoencoder (SAE) in PyTorch. The loss is im
 ## 🛠️ Parameters
 The parsed arguments allow the architecture to be launched from the terminal.
 
-- ```batch_size```: sets the batch size for training the model. -> int
-- ```n_epochs```: sets the number of epochs for training.
-- ```lr```: sets the learning rate.
-- ```in_dims```: sets input dimensions of the model.
-- ```h_dims```: sets hidden dimensions of the model.
-- ```sparsity_lambda```: sets the lambda value for the SAE (controls the strength of the sparsity penalty in the loss function. Larger value equals to more sparsity but potential loss in reconstruction quality).
-- ```sparsity_target```: sets the sparsity target value (average activation you want each hidden neuron to have across all input samples. Smaller value allows more sparsity).
-- ```xavier_norm_init```: sets xavier norm initialization for the weights of the encoder and decoder.
-- ```show_summary```: show model parameters and summary.
-- ```download_mnist```: download MNIST dataset for training.
-- ```train```: launch training.
+- ```batch_size``` -> int : sets the batch size for training the model.
+- ```n_epochs``` -> int: sets the number of epochs for training.
+- ```lr``` -> float: sets the learning rate.
+- ```in_dims``` -> int: sets input dimensions of the model.
+- ```h_dims``` -> int: sets hidden dimensions of the model.
+- ```sparsity_lambda``` -> float: sets the lambda value for the SAE (controls the strength of the sparsity penalty in the loss function. Larger value equals to more sparsity but potential loss in reconstruction quality).
+- ```sparsity_target``` -> float: sets the sparsity target value (average activation you want each hidden neuron to have across all input samples. Smaller value allows more sparsity).
+- ```xavier_norm_init``` -> bool: sets xavier norm initialization for the weights of the encoder and decoder.
+- ```show_summary``` -> bool: show model parameters and summary.
+- ```download_mnist``` -> bool: download MNIST dataset for training.
+- ```train``` -> bool: launch training.
 
 Here's the default values for the code:
 ```
