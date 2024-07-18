@@ -107,7 +107,7 @@ if __name__ == "__main__":
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
-    parser.add_argument('--train', type=bool, default=True)
+    parser.add_argument('--train', type=bool, default=False)
     args = parser.parse_args()
 
     transform = transforms.Compose([
