@@ -144,8 +144,9 @@ if __name__ == "__main__":
     else:
         device = torch.device('cpu')
 
-    print(f'\nUsing {device} for training.\nTo change the device manually, use the argument in the command line.\n')
-    print('='*64)
+    print('<>'*64)
+    print(f'Using [{str(device).upper()}] for training.\nTo change the device manually, use the argument in the command line.')
+    print('<>'*64 + '\n')
 
     if args.show_summary:
         print('MODEL SUMMARY:')
@@ -161,5 +162,5 @@ if __name__ == "__main__":
             device=device
         )
     
-    print('='*64)
-    print('Trained!')
+        print('='*64)
+        print('Trained!')
