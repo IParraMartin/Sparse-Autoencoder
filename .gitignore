@@ -1,2 +1,4 @@
+# Ignore these files/folders
 static/
 data/
+.DS_Store/
