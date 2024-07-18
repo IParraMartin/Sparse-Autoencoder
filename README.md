@@ -39,6 +39,7 @@ python3 sae.py \
 ## 🚀 Fast Launch
 Use this in your terminal to train the SAE model:
 ```
-cd 
+git clone https://github.com/IParraMartin/Sparse-Autoencoder.git
+cd Sparse-Autoencoder
 python3 sae.py --train True
 ```
