@@ -43,3 +43,6 @@ git clone https://github.com/IParraMartin/Sparse-Autoencoder.git
 cd Sparse-Autoencoder
 python3 sae.py --train True
 ```
+
+## 🤝 Contribute
+Feel free to reach out to contribute to this repo!😊
