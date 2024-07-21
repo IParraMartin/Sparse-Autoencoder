@@ -182,5 +182,3 @@ if __name__ == "__main__":
         model_save_path = os.path.join(save_dir, 'sae_model.pth')
         torch.save(sae_model.state_dict(), model_save_path)
         print(f'Model saved to {model_save_path}.')
-
-        # python3 sae.py --train True --n_epochs 1 --save_model True
