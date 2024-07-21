@@ -5,6 +5,7 @@ import argparse
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+import matplotlib.pyplot as plt
 from torchsummary import summary
 import os
 import certifi
