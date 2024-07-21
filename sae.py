@@ -117,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
     parser.add_argument('--train', type=bool, default=False)
+    parser.add_argument('--save_model', type=bool, default=False)
     args = parser.parse_args()
 
     transform = transforms.Compose([
@@ -174,3 +175,7 @@ if __name__ == "__main__":
     
         print('='*64)
         print('Trained!')
+
+    if args.save_model:
+        torch.save(sae_model.state_dict(), './sae_model.pth')
+        print(f'Model saved.')
