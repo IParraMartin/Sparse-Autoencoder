@@ -21,6 +21,7 @@ The parsed arguments allow the architecture to be launched from the terminal.
 - ```show_summary``` -> bool: show model parameters and summary.
 - ```download_mnist``` -> bool: download MNIST dataset for training.
 - ```train``` -> bool: launch training.
+- ```save_model``` -> bool: saves the model to a folder called 'files'.
 
 Here's the default values for the code:
 ```
@@ -36,6 +37,7 @@ python3 sae.py \
 --show_summary True \
 --download_mnist True \
 --train False \
+--save_model False \
 ```
 
 ## 🚀 Fast Launch
@@ -43,7 +45,7 @@ Use this in your terminal to train the SAE model:
 ```
 git clone https://github.com/IParraMartin/Sparse-Autoencoder.git
 cd Sparse-Autoencoder
-python3 sae.py --train True
+python3 sae.py --train True --save_model True
 ```
 
 ## 🤝 Contribute
