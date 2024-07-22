@@ -83,7 +83,7 @@ class SparseAutoencoder(nn.Module):
         mse_loss = F.mse_loss(x_hat, x)
         sparsity_loss = self.sparsity_penalty(encoded)
         return mse_loss + sparsity_loss
-    
+
 
 def train_model(model, dataloader, n_epochs, optimizer, device):
     model.to(device)
@@ -102,6 +102,22 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
             total_loss += loss.item()
         print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {float(total_loss/len(dataloader)):.4f}')
         print('-'*64)
+    # save activations of the hidden layer
+    sample_data, _ = next(iter(dataloader))
+    sample_data = sample_data.view(sample_data.size(0), -1).to(device)
+    with torch.no_grad():
+        activations, _ = model(sample_data)
+    return activations.cpu().numpy(), sample_data.cpu().numpy()
+
+
+def plot_activations(activations, num_neurons=10):
+    fig, axes = plt.subplots(1, num_neurons, figsize=(20, 2))
+    for i, ax in enumerate(axes):
+        if i >= activations.shape[1]:
+            break
+        ax.imshow(activations[:, i].reshape(-1, 1), aspect='auto', cmap='hot')
+        ax.set_title(f'Neuron {i+1}')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -118,6 +134,7 @@ if __name__ == "__main__":
     parser.add_argument('--show_summary', type=bool, default=True)
     parser.add_argument('--download_mnist', type=bool, default=True)
     parser.add_argument('--train', type=bool, default=False)
+    parser.add_argument('--visualize_activations', type=bool, default=False)
     parser.add_argument('--save_model', type=bool, default=False)
     args = parser.parse_args()
 
@@ -166,16 +183,18 @@ if __name__ == "__main__":
 
     if args.train:
         print('\nTraining...\n')
-        train_model(
+        activations, sample_data = train_model(
             model=sae_model,
             dataloader=train_dataloader,
             n_epochs=args.n_epochs,
             optimizer=optimizer,
             device=device
         )
-    
-        print('='*64)
+        print('-'*64)
         print('Trained!')
+
+        if args.visualize_activations:
+            plot_activations(activations, num_neurons=10)
 
     if args.save_model:
         save_dir = './files'
