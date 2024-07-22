@@ -208,9 +208,9 @@ if __name__ == "__main__":
         print('Trained!')
 
         if args.visualize_activations:
-            plot_activations(activations, num_neurons=30, neurons_per_row=10)
+            plot_activations(activations, num_neurons=50, neurons_per_row=10)
 
-    # python3 sae.py --train True --n_epochs 5 --visualize_activations True
+    # python3 sae.py --train True --n_epochs 20 --visualize_activations True
 
     if args.save_model:
         save_dir = './files'
