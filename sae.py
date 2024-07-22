@@ -196,6 +196,8 @@ if __name__ == "__main__":
         if args.visualize_activations:
             plot_activations(activations, num_neurons=10)
 
+    # python3 sae.py --train True --n_epochs 1 --visualize_activations True
+
     if args.save_model:
         save_dir = './files'
         os.makedirs(save_dir, exist_ok=True)

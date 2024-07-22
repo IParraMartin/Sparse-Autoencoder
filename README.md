@@ -21,6 +21,7 @@ The parsed arguments allow the architecture to be launched from the terminal.
 - ```show_summary``` -> bool: show model parameters and summary.
 - ```download_mnist``` -> bool: download MNIST dataset for training.
 - ```train``` -> bool: launch training.
+- ```visualize_activations``` -> bool: visualize neuron activations
 - ```save_model``` -> bool: saves the model to a folder called 'files'.
 
 Here's the default values for the code:
