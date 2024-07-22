@@ -52,5 +52,13 @@ cd Sparse-Autoencoder
 python3 sae.py --train True --save_model True
 ```
 
+## 📊 Activations Plot
+The activations plot of the hidden layer looks like this:
+<p align="center">
+  <img src="static/activations.png" width="300" title="Plot">
+</p>
+
+The sparsity is evident by the black boxes (inactive neurons). As we are using a batch size of 64, we have 64 rows (examples) in each neuron plot. We can see how much the neuron activates for a given example of the MNIST dataset.
+
 ## 🤝 Contribute
 Feel free to reach out to contribute to this repo!😊
