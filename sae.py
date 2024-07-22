@@ -6,7 +6,6 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 import matplotlib.pyplot as plt
-import numpy as np
 from torchsummary import summary
 import os
 import certifi
@@ -103,6 +102,7 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
             total_loss += loss.item()
         print(f'Epoch: {epoch+1}/{n_epochs} - Train L: {float(total_loss/len(dataloader)):.4f}')
         print('-'*64)
+    
     # save activations of the hidden layer
     sample_data, _ = next(iter(dataloader))
     sample_data = sample_data.view(sample_data.size(0), -1).to(device)
@@ -111,7 +111,7 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
     return activations.cpu().numpy(), sample_data.cpu().numpy()
 
 
-def plot_activations(activations, num_neurons=50, neurons_per_row=10):
+def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=None):
     # Calculate the number of rows needed
     num_rows = (num_neurons + neurons_per_row - 1) // neurons_per_row  
     fig, axes = plt.subplots(num_rows, neurons_per_row, figsize=(neurons_per_row * 2, num_rows * 2))
@@ -131,6 +131,10 @@ def plot_activations(activations, num_neurons=50, neurons_per_row=10):
         axes[j].axis('off')
     
     plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300)
+
     plt.show()
 
 
@@ -141,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_epochs', type=int, default=20)
     parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--in_dims', type=int, default=784)
-    parser.add_argument('--h_dims', type=int, default=1024)
+    parser.add_argument('--h_dims', type=int, default=3136)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--xavier_norm_init', type=bool, default=True)
@@ -150,6 +154,7 @@ if __name__ == "__main__":
     parser.add_argument('--train', type=bool, default=False)
     parser.add_argument('--visualize_activations', type=bool, default=False)
     parser.add_argument('--save_model', type=bool, default=False)
+    parser.add_argument('--save_plot', type=bool, default=False)
     args = parser.parse_args()
 
     transform = transforms.Compose([
@@ -208,13 +213,20 @@ if __name__ == "__main__":
         print('Trained!')
 
         if args.visualize_activations:
-            plot_activations(activations, num_neurons=50, neurons_per_row=10)
+            print(f'There are {len(activations[0])} neurons in the hidden layer.')
+            plot_activations(activations, num_neurons=40, neurons_per_row=10, save_path=None)
 
-    # python3 sae.py --train True --n_epochs 20 --visualize_activations True
+            if args.save_plot:
+                plot_save_dir = './files'
+                os.makedirs(plot_save_dir, exist_ok=True)
+                plot_save_path = os.path.join(plot_save_dir, 'activations.png')
+                plot_activations(activations, num_neurons=40, neurons_per_row=10, save_path=plot_save_path)
+
+    # python3 sae.py --train True --n_epochs 100 --visualize_activations True --save_plot True
 
     if args.save_model:
-        save_dir = './files'
-        os.makedirs(save_dir, exist_ok=True)
-        model_save_path = os.path.join(save_dir, 'sae_model.pth')
+        model_save_dir = './files'
+        os.makedirs(model_save_dir, exist_ok=True)
+        model_save_path = os.path.join(model_save_dir, 'sae_model.pth')
         torch.save(sae_model.state_dict(), model_save_path)
         print(f'Model saved to {model_save_path}.')
