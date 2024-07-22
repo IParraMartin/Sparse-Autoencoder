@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_epochs', type=int, default=20)
     parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--in_dims', type=int, default=784)
-    parser.add_argument('--h_dims', type=int, default=3136)
+    parser.add_argument('--h_dims', type=int, default=3920)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--xavier_norm_init', type=bool, default=True)
@@ -221,8 +221,6 @@ if __name__ == "__main__":
                 os.makedirs(plot_save_dir, exist_ok=True)
                 plot_save_path = os.path.join(plot_save_dir, 'activations.png')
                 plot_activations(activations, num_neurons=40, neurons_per_row=10, save_path=plot_save_path)
-
-    # python3 sae.py --train True --n_epochs 100 --visualize_activations True --save_plot True
 
     if args.save_model:
         model_save_dir = './files'
