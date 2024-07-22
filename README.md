@@ -21,8 +21,9 @@ The parsed arguments allow the architecture to be launched from the terminal.
 - ```show_summary``` -> bool: show model parameters and summary.
 - ```download_mnist``` -> bool: download MNIST dataset for training.
 - ```train``` -> bool: launch training.
-- ```visualize_activations``` -> bool: visualize neuron activations
+- ```visualize_activations``` -> bool: visualize neuron activations.
 - ```save_model``` -> bool: saves the model to a folder called 'files'.
+- ```save_plot``` -> bool: saves the activations plot to a folder called 'files'.
 
 Here's the default values for the code:
 ```
@@ -38,7 +39,9 @@ python3 sae.py \
 --show_summary True \
 --download_mnist True \
 --train False \
+--visualize_activations False \
 --save_model False \
+--save_plot False \
 ```
 
 ## 🚀 Fast Launch
