@@ -6,6 +6,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 import matplotlib.pyplot as plt
+import numpy as np
 from torchsummary import summary
 import os
 import certifi
@@ -110,13 +111,26 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
     return activations.cpu().numpy(), sample_data.cpu().numpy()
 
 
-def plot_activations(activations, num_neurons=10):
-    fig, axes = plt.subplots(1, num_neurons, figsize=(20, 2))
-    for i, ax in enumerate(axes):
+def plot_activations(activations, num_neurons=50, neurons_per_row=10):
+    # Calculate the number of rows needed
+    num_rows = (num_neurons + neurons_per_row - 1) // neurons_per_row  
+    fig, axes = plt.subplots(num_rows, neurons_per_row, figsize=(neurons_per_row * 2, num_rows * 2))
+    # Flatten the axes array to make iteration easier
+    axes = axes.flatten()  
+
+    for i in range(num_neurons):
         if i >= activations.shape[1]:
             break
+        ax = axes[i]
         ax.imshow(activations[:, i].reshape(-1, 1), aspect='auto', cmap='hot')
-        ax.set_title(f'Neuron {i+1}')
+        ax.set_title(f'Neuron {i+1}', fontsize=8)
+        ax.tick_params(axis='both', which='major', labelsize=6)
+
+    # Hide any unused subplots
+    for j in range(i+1, len(axes)):
+        axes[j].axis('off')
+    
+    plt.tight_layout()
     plt.show()
 
 
@@ -125,7 +139,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--n_epochs', type=int, default=20)
-    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--in_dims', type=int, default=784)
     parser.add_argument('--h_dims', type=int, default=1024)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
@@ -194,9 +208,9 @@ if __name__ == "__main__":
         print('Trained!')
 
         if args.visualize_activations:
-            plot_activations(activations, num_neurons=10)
+            plot_activations(activations, num_neurons=30, neurons_per_row=10)
 
-    # python3 sae.py --train True --n_epochs 1 --visualize_activations True
+    # python3 sae.py --train True --n_epochs 5 --visualize_activations True
 
     if args.save_model:
         save_dir = './files'
