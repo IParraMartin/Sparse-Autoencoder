@@ -116,7 +116,7 @@ def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=
     num_rows = (num_neurons + neurons_per_row - 1) // neurons_per_row  
     fig, axes = plt.subplots(num_rows, neurons_per_row, figsize=(neurons_per_row * 2, num_rows * 2))
     # Flatten the axes array to make iteration easier
-    axes = axes.flatten()  
+    axes = axes.flatten()
 
     for i in range(num_neurons):
         if i >= activations.shape[1]:
@@ -133,7 +133,7 @@ def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300)
+        plt.savefig(save_path, dpi=600)
 
     plt.show()
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_epochs', type=int, default=20)
     parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--in_dims', type=int, default=784)
-    parser.add_argument('--h_dims', type=int, default=3920)
+    parser.add_argument('--h_dims', type=int, default=5488)
     parser.add_argument('--sparsity_lambda', type=float, default=1e-4)
     parser.add_argument('--sparsity_target', type=float, default=0.05)
     parser.add_argument('--xavier_norm_init', type=bool, default=True)
@@ -192,9 +192,9 @@ if __name__ == "__main__":
     else:
         device = torch.device('cpu')
 
-    print('<>'*64)
+    print('-' * 64)
     print(f'Using [{str(device).upper()}] for training.\nTo change the device manually, use the argument in the command line.')
-    print('<>'*64 + '\n')
+    print('-' * 64 + '\n')
 
     if args.show_summary:
         print('MODEL SUMMARY:')
@@ -209,7 +209,7 @@ if __name__ == "__main__":
             optimizer=optimizer,
             device=device
         )
-        print('-'*64)
+        print('-' * 64)
         print('Trained!')
 
         if args.visualize_activations:
