@@ -10,9 +10,8 @@ from torchsummary import summary
 import os
 import certifi
 
-
-# ensure that Python uses up-to-date CA certificates when making secure connections and prevent errors
 os.environ['SSL_CERT_FILE'] = certifi.where()
+
 
 class SparseAutoencoder(nn.Module):
 
@@ -30,11 +29,12 @@ class SparseAutoencoder(nn.Module):
         """
         self.encoder = nn.Sequential(
             nn.Linear(self.in_dims, self.h_dims),
-            nn.ReLU()
+            nn.Sigmoid()
         )
 
         if self.xavier_norm_init:
             nn.init.xavier_uniform_(self.encoder[0].weight)
+            nn.init.constant_(self.encoder[0].bias, 0)
 
         """
         Map back the features to the original input dimensions.
@@ -42,11 +42,12 @@ class SparseAutoencoder(nn.Module):
         """
         self.decoder = nn.Sequential(
             nn.Linear(self.h_dims, self.in_dims),
-            nn.ReLU()
+            nn.Tanh()
         )
 
         if self.xavier_norm_init:
             nn.init.xavier_uniform_(self.decoder[0].weight)
+            nn.init.constant_(self.decoder[0].bias, 0)
 
     """
     We pass the original signal through the encoder. Then we pass
@@ -56,30 +57,50 @@ class SparseAutoencoder(nn.Module):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return encoded, decoded
-    
+
     """
     This is the sparsity penalty we are going to use KL divergence
+        - Encourage each hidden neuron to have an average activation (rho_hat) close to the target sparsity level (rho).
+
+    Explanation:
+        1. Compute the mean activation of each hidden neuron across the batch
+            - We need the average activation to compare it with the target sparsity level. This tells us how active each neuron is on average.
+
+        2. Retrieve the desired average activation level for the hidden neurons.
+            - This is the sparsity level we want each neuron to achieve. 
+            - Typically a small value like 0.05, meaning we want neurons to be active only 5% of the time.
+        
+        3.1. Set epsilon constant to prevent division by zero or taking the logarithm of zero.
+        3.2. Use torch.clamp to ensure rho_hat stays within the range [epsilon, 1 - epsilon].
+            - This is to avoid numerical issues like infinite or undefined values in subsequent calculations.
+
+        4. Calculate the KL divergence between the target sparsity rho and the actual average activation rho_hat for each neuron.
+            - rho * torch.log(rho / rho_hat) -> Measures the divergence when the neuron is active.
+            - (1 - rho) * torch.log((1 - rho) / (1 - rho_hat)) -> Measures the divergence when the neuron is inactive.
+            - The KL divergence quantifies how different the actual activation distribution is from the desired (target) distribution. 
+            - A higher value means the neuron is deviating more from the target sparsity level.
+
+        5. Aggregate the divergence values from all hidden neurons to compute a total penalty.
+            - We want a single penalty value to add to the loss function, representing the overall sparsity deviation.
+
+        6. Multiply the total KL divergence by a regularization parameter
+            - sparsity_lambda controls the weight of the sparsity penalty in the loss function. 
+            - A higher value means sparsity is more heavily enforced, while a lower value lessens its impact.
     """
     def sparsity_penalty(self, encoded):
-        # Compute the average activation of each hidden neuron across all the samples in a batch
-        # how often do hidden units activate?
         rho_hat = torch.mean(encoded, dim=0)
-        # Create a tensor of dimensions equal to the original tensor filled with the target sparsity (0.05 = 5%)
-        # This means: we want 5% of the hidden units to be active on average
-        rho = torch.ones_like(rho_hat) * self.sparsity_target
-        # Add a small epsilon value to avoid log(0)
+        rho = self.sparsity_target
         epsilon = 1e-8
-        # KL: quantify how one p-distribution diverges from a expected p-distribution
-        # Our case: measure how average rho_hat diverges from our target rho
-        kl_divergence = F.kl_div((rho_hat + epsilon).log(), rho + epsilon, reduction='batchmean')
-        return self.sparsity_lambda * kl_divergence
-    
+        rho_hat = torch.clamp(rho_hat, min=epsilon, max=1 - epsilon)
+        kl_divergence = rho * torch.log(rho / rho_hat) + (1 - rho) * torch.log((1 - rho) / (1 - rho_hat))
+        sparsity_penalty = torch.sum(kl_divergence)
+        return self.sparsity_lambda * sparsity_penalty
+
     """
     Create a custom loss that combine mean squared error (MSE) loss 
     for reconstruction with the sparsity penalty.
     """
     def loss_function(self, x_hat, x, encoded):
-        # x_hat is the reconstructed version of x
         mse_loss = F.mse_loss(x_hat, x)
         sparsity_loss = self.sparsity_penalty(encoded)
         return mse_loss + sparsity_loss
@@ -112,10 +133,8 @@ def train_model(model, dataloader, n_epochs, optimizer, device):
 
 
 def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=None):
-    # Calculate the number of rows needed
     num_rows = (num_neurons + neurons_per_row - 1) // neurons_per_row  
     fig, axes = plt.subplots(num_rows, neurons_per_row, figsize=(neurons_per_row * 2, num_rows * 2))
-    # Flatten the axes array to make iteration easier
     axes = axes.flatten()
 
     for i in range(num_neurons):
@@ -126,7 +145,6 @@ def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=
         ax.set_title(f'Neuron {i+1}', fontsize=8)
         ax.tick_params(axis='both', which='major', labelsize=6)
 
-    # Hide any unused subplots
     for j in range(i+1, len(axes)):
         axes[j].axis('off')
     
@@ -139,6 +157,13 @@ def plot_activations(activations, num_neurons=50, neurons_per_row=10, save_path=
 
 
 if __name__ == "__main__":
+
+    def seeding(seed):
+        torch.manual_seed(seed)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+
+    seeding(1337)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
@@ -228,3 +253,6 @@ if __name__ == "__main__":
         model_save_path = os.path.join(model_save_dir, 'sae_model.pth')
         torch.save(sae_model.state_dict(), model_save_path)
         print(f'Model saved to {model_save_path}.')
+
+
+# python3 sae.py --batch_size 64 --n_epochs 20 --lr 0.0001 --in_dims 784 --h_dims 1024 --sparsity_lambda 1e-5 --sparsity_target 0.05 --xavier_norm_init True --show_summary True --download_mnist True --train False --visualize_activations False --save_model False --save_plot False

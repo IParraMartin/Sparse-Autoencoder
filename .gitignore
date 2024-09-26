@@ -1,5 +1,5 @@
 # Ignore these files/folders
 static/
 data/
-.DS_Store/
+.DS_Store
 files/
